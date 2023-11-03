@@ -1,0 +1,14 @@
+<!-- inherit from base.html -->
+{% extends 'Website_app/base_template.html' %}
+
+
+<!-- Replace block content in base_template.html -->
+{% block content %}
+
+<p><strong>Show: {{show.title}}</strong></p>
+
+<p>Current episode: {{show.season}}:{{show.episode}} </p>
+<p>{{show.description}}</p>
+
+
+{% endblock %}

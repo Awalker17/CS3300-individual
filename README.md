@@ -247,3 +247,5 @@ inside the console run
 python manage.py create super user
 ```
 then fallow the instructions.
+
+

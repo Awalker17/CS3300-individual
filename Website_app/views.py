@@ -1,6 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.views import generic
+from .models import *
+
 # Create your views here.
 def index(request):
-    # Render the HTML template index.html with the data in the context variable.
-    return render(request, 'Website_app/index.html')
+    #Testing.
+    #print("TESTING: All students with portfolios: ", Student.objects.select_related('portfolio'))
+    all_portfolios = Show.objects.all()
+    print("show query set", all_portfolios)
+    return render( request, 'Website_app/index.html', {'portfolios':all_portfolios})
+
+class ShowDetailView(generic.DetailView):
+    model = Show

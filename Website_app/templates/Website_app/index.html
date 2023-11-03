@@ -5,5 +5,16 @@
 <!-- Replace block content in base_template.html -->
 {% block content %}
 
+<h1>All shows inputed</h1>
+
+<ul class="list-group">
+{% for i in portfolios %}
+<li class="list-group-item">
+    <p>Title: {{i.title}}</p>
+    <a class="btn btn-secondary" href="{{ i.get_absolute_url }}" role="button">View</a>
+</li>
+{% endfor %}
+</ul>
+
 
 {% endblock %}
