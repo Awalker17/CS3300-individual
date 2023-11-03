@@ -3,6 +3,11 @@
 * [Environment setup](#django-setup)
 * [Creating a Project](#project-setup)
 * [Install Bootstrap](#installing-bootstap)
+* [Ready Django](#change-settings-make-app-and-edit-app-urls-and-views)
+* [Making Models](#models)
+* [SuperUser](#making-a-superuser)
+* [Detail views and List views](#detail-views-and-list-views)
+* [How to make a link to another internal page](#linking-to-another-page)
 
 # Setting up the envirnonment
 
@@ -239,13 +244,166 @@ admin.site.register(Show)
 
 any model you need to register just add a line replacing `Show` with the name of the model
 
+
+## updating your model
+
+When updating your models it is very important to clear the database first... or else your gonna run into problems.
+
+1) Clear your data base you don't want to forget this so do it fisrt
+
+2) Make changes to your model
+
+3) run 
+
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+
+If you get this issue:
+It is impossible to add a non-nullable field 'episode' to show without specifying a default. This is because the database needs something to populate existing rows.
+Please select a fix:
+ 1) Provide a one-off default now (will be set on all existing rows with a null value for this column)
+ 2) Quit and manually define a default value in models.py.
+
+ type `1` then type `None`
+
+ That should fix the issue
+
+4) Run your server and check your work.
+
+Remember to update any views as nessisary
+
+### I forgot to clear the database
+
+Heres how to fix it.
+
+1) manualy delete the db.sqlite3 file in your website
+2) run
+```
+python manage.py flush
+```
+answer `yes`
+3) remake [superuser](#making-a-superuser)
+4) repopulate models with test data
+5) and go back to [step 3 in updating model](#updating-your-model)
+
+
 # Making a superuser
 
 inside the console run
 
 ```
-python manage.py create super user
+python manage.py createsuperuser
 ```
 then fallow the instructions.
 
+# Detail views and List views
 
+Making these two types of pages is easy but there are alot of places to go wrong.
+
+## Detail View
+
+Start with making the html page. Under templates then Website_app make a new file named `model_detail.html` mine is called `show_deltai.html`
+
+Next move to the views. Add a class for the view like:
+
+```
+class ShowDetailView(generic.DetailView):
+    model = Show
+```
+if you havent already go ahead and import the models by `from .models import *` you can replace * with a specific model name if you want.
+
+next go into your urls.py and add
+
+```
+path('show/<int:pk>', views.ShowDetailView.as_view(), name = 'show-detail')
+```
+
+Now you can make your webpage. Go back to your `model_detail.html` page and add a few things.
+
+```
+<!-- inherit from base.html -->
+{% extends 'Website_app/base_template.html' %}
+
+
+<!-- Replace block content in base_template.html -->
+{% block content %}
+
+<!-- Your webpage content goes here -->
+
+{% endblock %}
+```
+
+Populate the page with whatever you need. Note if you need to add details for a model that isn't in the models feilds you will need to do extra steps. In the mean time you can add things like
+
+```
+<p><strong>Show: {{show.title}}</strong></p>
+<p>Current episode: {{show.season}}:{{show.episode}} </p>
+<p>{{show.description}}</p>
+```
+this looks like
+
+<p><strong>Show: NAME</strong></p>
+<p>Current episode: #:# </p>
+<p>Donec ipsum purus, consequat id libero suscipit, convallis pellentesque erat. Donec sit amet metus tempus, dictum erat vitae, tempus velit. Curabitur sit amet turpis lacus. Quisque egestas, sem nec efficitur ornare, tortor eros bibendum mauris, eu scelerisque elit ex quis enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+
+## List View
+Start with making the html page. Under templates then Website_app make a new file named `model_list.html` mine is called `show_list.html`
+
+Next move to the views. Add a class for the view like:
+
+```
+class ShowListView(generic.ListView):
+    model = Show
+```
+
+if you havent already go ahead and import the models by `from .models import *` you can replace * with a specific model name if you want.
+
+next go into your urls.py and add
+
+```
+path('show', views.ShowListView.as_view(), name= "show-list"),
+```
+
+Now you can make your webpage. Go back to your `model_detail.html` page and add a few things.
+
+```
+<!-- inherit from base.html -->
+{% extends 'Website_app/base_template.html' %}
+
+
+<!-- Replace block content in base_template.html -->
+{% block content %}
+
+<h1>All shows inputed</h1>
+
+<ul class="list-group">
+
+{% if show_list %}
+<ul>
+{% for show in show_list %}
+<li>
+    <a href="{{ show.get_absolute_url }}">{{ show.title }}</a>
+    </li>
+{% endfor %}
+</ul>
+{% else %}
+<p>There are no shows registered.</p>
+{% endif %}
+
+{% endblock %}
+
+```
+
+# Linking to another page
+
+Go to urls.py and double check what the name is for the path you intend to fallow. Lets pretend we want to go to show_list.html.
+```
+path('show', views.ShowListView.as_view(), name= "show-list")
+```
+the path you want to use is `show-list`. Now got to the html page you want to have this link to.
+```
+<a href = "{% url 'show-list' %}">Here</a>
+```
+reconize these key elements:`<a></a>` link is used, `href= "{% url '' %}"` is the link format, then inside the '' your path name is used.

@@ -12,3 +12,5 @@ def index(request):
 
 class ShowDetailView(generic.DetailView):
     model = Show
+class ShowListView(generic.ListView):
+    model = Show
