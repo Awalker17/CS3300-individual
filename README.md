@@ -10,6 +10,7 @@
 * [How to make a link to another internal page](#linking-to-another-page)
 * [How to create a model create page](#new-modelshow-create-page)
 * [How to create a model update page](#update-modelshow-page)
+* [How to create a model delete page](#delete-modelshow-page)
 
 # Setting up the envirnonment
 
@@ -574,3 +575,79 @@ path('show/<int:show_id>/update_show', views.updateShow, name='update_show'),
 > [!IMPORTANT] 
 > You need to update your url to include `<int:modelname_id>`, and if you have any links to the page remember to add `'modelname.id'` as nessissary. 
 > if you have any views to this page you will also need to add to the redirect as nessisary
+
+# Delete Model/show page
+
+If you have yet to do Step 1 from [New Model](#new-modelshow-create-page) go ahead and do that now.
+
+## Step 1 
+Make a new file in templates\Website_app called `show_delete.html` and put the fallowing into the file
+
+```
+{% extends 'Website_app/base_template.html' %}
+
+
+{% block content %}
+
+
+<p>Are you sure you want to delete "{{show}}"?</p>
+
+<form method="POST" action="{% url 'delete_show' show.id %}">
+
+{% csrf_token %}
+<a href="{% url 'show-list' %}">Cancel</a>
+<input type="submit" name="Confirm">
+
+</form>
+
+
+{% endblock %}
+```
+if you add relations you will need to change the `action = ""` url
+
+## Step 2
+
+Inside of the view.py page add
+
+```
+from django.contrib import messages
+```
+
+```
+def deleteShow(request, show_id):
+    show = Show.objects.get(id = show_id)
+
+    if request.method == "POST":
+        show.delete()
+        messages.success(request, "The show has been deleted.")
+        
+        return redirect('show-list')
+
+    context = {"show": show}
+    return render(request, 'Website_app/show_delete.html',context )
+
+```
+
+If you need to add a relation change the fallowing:
+
+In `def deleteShow(request, show_id):` add `modelname_id` for each relation
+
+In ` context = {"show": show}` add a second dictionary key named modelname_id with modelname_id as the value
+
+
+## Step 3 
+
+Move to the urls.py page and add:
+```
+path('show/<int:show_id>/delete_show', views.deleteShow, name='delete_show'),
+```
+Remember if you need to add relations add another `<int:modelname_id>`
+
+## Step 4
+
+In the page you want to have the delete button add:
+
+```
+<a class="btn btn-danger" role="button" href = "{% url 'delete_show' show.id %}">Delete</a>
+```
+Remember if you need to add relations be sure to add the id here aswell.
