@@ -7,6 +7,8 @@
 
 <p><strong>Show: {{show.title}}</strong></p>
 
+<a href = "{% url 'update_show' show.id %}" class="btn btn-primary">Update</a>
+
 <p>Current episode: {{show.season}}:{{show.episode}} </p>
 <p>{{show.description}}</p>
 

@@ -8,6 +8,8 @@
 * [SuperUser](#making-a-superuser)
 * [Detail views and List views](#detail-views-and-list-views)
 * [How to make a link to another internal page](#linking-to-another-page)
+* [How to create a model create page](#new-modelshow-create-page)
+* [How to create a model update page](#update-modelshow-page)
 
 # Setting up the envirnonment
 
@@ -407,3 +409,168 @@ the path you want to use is `show-list`. Now got to the html page you want to ha
 <a href = "{% url 'show-list' %}">Here</a>
 ```
 reconize these key elements:`<a></a>` link is used, `href= "{% url '' %}"` is the link format, then inside the '' your path name is used.
+
+# New Model/show create page
+
+## Step 1 
+Make a new file named forms.py inside of the Website_app
+
+add the fallowing code:
+```
+from django.forms import ModelForm
+from .models import *
+
+class ShowForm(ModelForm):
+     class Meta:
+        model = Show
+        fields =('title', 'description')
+```
+
+For different models replace the `model = show ` with the apropiete model. To change the form fields you can add any of the fields from the model or use `'__all__'` to simply put in all of them.
+
+## Step 2
+Make a file named 'show_form.html' inside your templates/Website_app folder.
+
+```
+<!-- inherit from base.html -->
+{% extends 'Website_app/base_template.html' %}
+
+
+<!-- Replace block content in base_template.html -->
+{% block content %}
+
+
+<form action="" method="POST">
+
+
+{% csrf_token %}
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" name="Submit">
+</form>
+
+
+{% endblock %}
+```
+
+## Step 3
+Inside your views add the fallowing
+
+```
+from django.shortcuts import redirect, render
+```
+
+```
+def createShow(request):
+    form = ShowForm()
+    
+    if request.method == 'POST':
+        # Create a new dictionary with form data and show_id
+        show_data = request.POST.copy()
+        
+        form = ShowForm(show_data)
+        if form.is_valid():
+            # Save the form without committing to the database
+            show = form.save(commit=False)
+            
+            show.save()
+
+            # Redirect back to the show detail page
+            return redirect('show-list')
+
+    context = {'form':form}
+    return render(request, 'Website_app\show_form.html', context)
+```
+
+This is code for a model with no relations. If their are relations you will need to modify it a bit.
+
+Inside the def line add your id's as nessisary in the format `request, modelname_id` and as you need more relationships add more `, modelname_id`.
+Make sure they are clear and distinct.
+
+After `form = Showform()` aprox. line 2 add.
+```
+modelname = Modelname.objects.get(pk=modelname_id)
+```
+pay attention to the capitalization.
+
+After the if statement beteen `show_data = ...` and `form = ...` add `show_data['modelname_id'] = madelname_id` this will set the id of the apropriet data feild. 
+Remember i'm useing show_data but you will need to replace all the shows with the name of the model your making a form for.
+
+Next up after `show = form.save(commit=False)` add `show.modelname = modelname` this will make sure to add all the data for your model as apropriet.
+
+Last in `return redirect('show-list')`  after `'show_list'` add  modelname_id
+
+> [!IMPORTANT] 
+> You need to update your url to include `<int:modelname_id>`, and if you have any links to the page remember to add `'modelname.id'` as nessissary. 
+> if you have any views to this page you will also need to add to the redirect as nessisary
+
+## Step 4 
+
+Now head into the urls.py and add your path
+
+```
+path('show/create_show', views.createShow, name='create_show'),
+```
+In this case the show list contains the new button (for now this might change later) so using the show-list path add `/create-show` then the name of your view method and then name your path.
+
+## Step 5
+
+Add your button. You can put them in a few places or just one but don't forget to add it. Style as needed. In this case I put the button in `show_list.html` towards the top.
+<a href = "{% url 'create_show' %}">New</a>
+
+Give it ago! And remember if its not compleatly working try checking that you spell everything correctly didn't miss a step and change ALL the names of the models from the example.
+
+# Update model/show page
+
+If you've already made a Create model page then you wont need to do much if you haven't fallow steps 1 and 2 in the [New model](#new-modelshow-create-page) section.
+
+## Step 1
+
+In Views.py add the fallowing code
+
+```
+from django.shortcuts import redirect, render
+```
+
+```
+def updateShow(request, show_id):
+    show = Show.objects.get(id = show_id)
+    form = ShowForm(instance=show)
+
+    if request.method == 'POST':
+        # Retrieve the show based on the show_id
+        print('printing POST:', request.POST)
+        print('Show id:', show_id)
+        form = ShowForm(request.POST, instance=show)
+        
+        if form.is_valid():
+            # Save the form without committing to the database
+            show = form.save(commit=False)
+
+            show.save()
+            # Redirect back to the show detail page
+            return redirect('show-detail', show_id)
+
+
+    context = {'form': form}
+    return render(request, 'Website_app/Show_form.html',context )
+```
+To add relationship to this code do the fallowing for each relationship.
+
+In `def updateShow(request, show_id):` add your `modelname_id` simular to show_id.
+
+After `form = ShowForm(instance = show)` add `modelname = Modelname.objects.get(id = modelname_id)`
+Pay attention to the capitiziation.
+
+Bewteen `show = ...` and `show.save()` add `show.modelname = modelname`
+
+## Step 2
+
+Add your path 
+```
+path('show/<int:show_id>/update_show', views.updateShow, name='update_show'),
+```
+> [!IMPORTANT] 
+> You need to update your url to include `<int:modelname_id>`, and if you have any links to the page remember to add `'modelname.id'` as nessissary. 
+> if you have any views to this page you will also need to add to the redirect as nessisary

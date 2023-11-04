@@ -1,0 +1,18 @@
+{% extends 'Website_app/base_template.html' %}
+
+
+{% block content %}
+
+
+<p>Are you sure you want to delete "{{show}}"?</p>
+
+<form method="POST" action="{% url 'delete_show' show.id %}">
+
+{% csrf_token %}
+<a href="{% url 'show-list' %}">Cancel</a>
+<input type="submit" name="Confirm">
+
+</form>
+
+
+{% endblock %}
