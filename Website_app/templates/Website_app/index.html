@@ -5,9 +5,9 @@
 <!-- Replace block content in base_template.html -->
 {% block content %}
 
-<h1>All shows inputed</h1>
-<p>See all shows: <a class= "btn btn-secondary" role = "button" href = "{% url 'show-list' %}">Here</a></p>
-
+<p class = "h1">All shows inputed</p>
+<p class="px-4">See all shows: <a class= "btn btn-secondary py-0" role = "button" href = "{% url 'show-list' %}">Here</a></p>
+<p class="px-4">See all unfinished shows: <a class= "btn btn-secondary py-0" role = "button" href = "{% url 'show_list_unfinished' %}">Here</a></p>
 
 
 {% endblock %}
