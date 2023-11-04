@@ -1,0 +1,14 @@
+<!-- inherit from base.html -->
+{% extends 'Website_app/base_template.html' %}
+
+
+<!-- Replace block content in base_template.html -->
+{% block content %}
+
+<h1>All shows inputed</h1>
+<p>See all shows: <a class= "btn btn-secondary" role = "button" href = "{% url 'show-list' %}">Here</a></p>
+
+
+
+{% endblock %}
+
