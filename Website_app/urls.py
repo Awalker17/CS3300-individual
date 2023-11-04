@@ -9,4 +9,5 @@ urlpatterns = [
 path('', views.index, name='index'),
 path('show/<int:pk>', views.ShowDetailView.as_view(), name = 'show-detail'),
 path('show', views.ShowListView.as_view(), name= "show-list"),
+path('show/create_show', views.createShow, name='create_show'),
 ]

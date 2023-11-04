@@ -5,8 +5,8 @@ from django.urls import reverse
 class Show(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    season = models.CharField(max_length=3)
-    episode = models.CharField(max_length=3)
+    season = models.CharField(max_length=3, blank = True)
+    episode = models.CharField(max_length=3, blank = True)
 
     def __str__(self) -> str:
         return self.title
