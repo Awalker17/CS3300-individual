@@ -4,4 +4,4 @@ from .models import *
 class ShowForm(ModelForm):
      class Meta:
         model = Show
-        fields =('title', 'description')
+        fields ='__all__'

@@ -1,0 +1,20 @@
+
+
+<p class=" h3">
+    {{ show.title }} 
+    
+    <a class="btn btn-danger float-end mx-2" role="button" href = "{% url 'delete_show' show.id %}">Delete</a>
+    <a href="{{ show.get_absolute_url }}" class="btn btn-primary float-end" role="button">View</a>
+</p>
+
+{% if show.finished == True %}
+    <p>Finished</p>
+
+{% elif show.season != "" and show.episode != ""%}
+<p>Episode: {{show.season}}:{{show.episode}}</p>
+
+{% endif %}
+
+{% if show.streaming != "" %}
+<p>Streaming Platform: {{show.streaming}}</p>
+{% endif %}

@@ -651,3 +651,6 @@ In the page you want to have the delete button add:
 <a class="btn btn-danger" role="button" href = "{% url 'delete_show' show.id %}">Delete</a>
 ```
 Remember if you need to add relations be sure to add the id here aswell.
+
+# Using Bootstrap
+

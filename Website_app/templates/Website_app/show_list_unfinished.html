@@ -6,18 +6,19 @@
 {% block content %}
 
 
-<p class="h1">My Shows <a class="btn btn-primary float-end" role="button" href = "{% url 'create_show' %}">New</a></p>
+<p class="h1">My Unfinished Shows <a class="btn btn-primary float-end" role="button" href = "{% url 'create_show' %}">New</a></p>
 
 
 
 <ul class="list-group">
 
-{% if show_list %}
+{% if unfinished_shows %}
 <ul class="list-group">
-{% for show in show_list %}
-    <li class="list-group-item" >
+{% for show in unfinished_shows %}
+    <li class="list-group-item">
         {% include 'Website_app/show_list_formating.html' with show=show %}
     </li>
+
 {% endfor %}
 </ul>
 {% else %}

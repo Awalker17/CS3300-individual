@@ -11,6 +11,12 @@ def index(request):
     all_shows = Show.objects.all()
     print("show query set", all_shows)
     return render( request, 'Website_app/index.html', {'shows':all_shows})
+def unfinishedShowList(request):
+    #Testing.
+    #print("TESTING: All students with shows: ", Student.objects.select_related('show'))
+    unfinished_shows = Show.objects.all().filter(finished = False)
+    print("show query set", unfinished_shows)
+    return render( request, 'Website_app/show_list_unfinished.html', {'unfinished_shows':unfinished_shows})
 
 class ShowDetailView(generic.DetailView):
     model = Show

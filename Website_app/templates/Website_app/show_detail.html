@@ -5,12 +5,37 @@
 <!-- Replace block content in base_template.html -->
 {% block content %}
 
-<p><strong>Show: {{show.title}}</strong></p>
+<p class="h1">{{show.title}}</p>
 
-<a href = "{% url 'update_show' show.id %}" class="btn btn-primary">Update</a>
+<div class="m-4" >
 
+
+{% if show.finished %}
+<p>Show finished</p>
+{% else %}
 <p>Current episode: {{show.season}}:{{show.episode}} </p>
-<p>{{show.description}}</p>
-
+{% endif %}
+<p>Languge watched: {{show.language}}</p>
+<p>Streaming service avaliable on: {{show.streaming}}</p>
+<div class="container" style="background-color: lightgrey">
+    <div class="row">
+        <div class="col-md">
+        <p class="h3">Desciption</p>
+        <p>{{show.description}}</p>
+        </div>
+        <div class="col-md">
+            <p class="h3">Plot</p>
+            <button data-bs-toggle="collapse" data-bs-target="#demo" type="button" class="btn btn-secondary">View Spoilers</button>
+            <div id="demo" class="collapse">
+                <p>{{show.synopis}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="my-2 float-end">
+<a href = "{% url 'update_show' show.id %}" class="btn btn-primary">Update</a>
+<a class="btn btn-danger" role="button" href = "{% url 'delete_show' show.id %}">Delete</a>
+</div>
+</div>
 
 {% endblock %}
