@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import generic
 from django.contrib import messages
+from django.http import HttpResponse
 from .models import *
 from .forms import *
 
@@ -8,9 +9,19 @@ from .forms import *
 def index(request):
     #Testing.
     #print("TESTING: All students with shows: ", Student.objects.select_related('show'))
-    all_shows = Show.objects.all()
-    print("show query set", all_shows)
-    return render( request, 'Website_app/index.html', {'shows':all_shows})
+
+    shows = None
+    if request.GET.get("Show_types"):
+        results = request.GET.get("Show_types")
+        shows = Show.objects.all()
+        print(results)
+        if results == "Unfinished":
+            shows = shows.filter(finished = False)
+        elif results == "Finished":
+            shows = shows.filter(finished = True)
+
+    return render( request, 'Website_app/index.html', {'shows':shows})
+
 def unfinishedShowList(request):
     #Testing.
     #print("TESTING: All students with shows: ", Student.objects.select_related('show'))

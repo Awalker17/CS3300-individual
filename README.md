@@ -11,6 +11,7 @@
 * [How to create a model create page](#new-modelshow-create-page)
 * [How to create a model update page](#update-modelshow-page)
 * [How to create a model delete page](#delete-modelshow-page)
+* [Bootstrap](/Bootstrap.md)
 
 # Setting up the envirnonment
 
@@ -652,5 +653,5 @@ In the page you want to have the delete button add:
 ```
 Remember if you need to add relations be sure to add the id here aswell.
 
-# Using Bootstrap
+
 
