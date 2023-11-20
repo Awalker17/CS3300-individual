@@ -9,17 +9,7 @@ from .forms import *
 def index(request):
     #Testing.
     #print("TESTING: All students with shows: ", Student.objects.select_related('show'))
-
-    
-
-    return render( request, 'Website_app/index.html', {'shows':shows})
-
-def unfinishedShowList(request):
-    #Testing.
-    #print("TESTING: All students with shows: ", Student.objects.select_related('show'))
-    unfinished_shows = Show.objects.all().filter(finished = False)
-    print("show query set", unfinished_shows)
-    return render( request, 'Website_app/show_list_unfinished.html', {'unfinished_shows':unfinished_shows})
+    return render( request, 'Website_app/index.html')
 
 class ShowDetailView(generic.DetailView):
     model = Show
@@ -79,7 +69,7 @@ def deleteShow(request, show_id):
 
     context = {"show": show}
     return render(request, 'Website_app/show_delete.html',context )
-
+ 
 def UserDetailView(request, user_id):
 
     shows = None
@@ -94,3 +84,38 @@ def UserDetailView(request, user_id):
 
     user = User.objects.get(id = user_id)
     return render( request, 'Website_app/user_detail.html', {'user': user, 'shows':shows})
+
+class UserListView(generic.ListView):
+    model = User
+
+def createUser(request):
+    form = UserForm()
+    
+    if request.method == 'POST':
+        # Create a new dictionary with form data and user_id
+        user_data = request.POST.copy()
+        
+        form = UserForm(user_data)
+        if form.is_valid():
+            # Save the form without committing to the database
+            user = form.save(commit=False)
+            
+            user.save()
+
+            # Redirect back to the user detail page
+            return redirect('user-list')
+
+    context = {'form':form}
+    return render(request, 'Website_app/user_form.html', context)
+
+def deleteUser(request, user_id):
+    user= User.objects.get(id = user_id)
+
+    if request.method == "POST":
+        user.delete()
+        messages.success(request, "The user has been deleted.")
+        
+        return redirect('user-list')
+
+    context = {"user": user}
+    return render(request, 'Website_app/user_delete.html',context )

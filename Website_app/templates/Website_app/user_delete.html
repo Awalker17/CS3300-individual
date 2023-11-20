@@ -1,0 +1,18 @@
+{% extends 'Website_app/base_template.html' %}
+
+
+{% block content %}
+
+
+<p>Are you sure you want to delete "{{user}}"?</p>
+
+<form method="POST" action="{% url 'delete_user' user.id %}">
+
+{% csrf_token %}
+<a href="{% url 'user-list' %}">Cancel</a>
+<input type="submit" name="Confirm">
+
+</form>
+
+
+{% endblock %}
