@@ -7,33 +7,6 @@
 
 <p class = "h1">All shows inputed</p>
 <p class="px-4">See all shows: <a class= "btn btn-secondary py-0" role = "button" href = "{% url 'show-list' %}">Here</a></p>
-<p class="px-4">See all unfinished shows: <a class= "btn btn-secondary py-0" role = "button" href = "{% url 'show_list_unfinished' %}">Here</a></p>
-
-
-<form method="GET" style="padding: 10px;">
-<select class="form-select form-select-sm w-25" name = "Show_types">
-    <option value = "All Shows">All Shows</option>
-    <option value = "Unfinished">Unfinished</option>
-    <option value = "Finished">Finished</option>
-</select>
-<input type="submit" value="Search">
-</form>
-
-<ul class="list-group">
-
-    {% if shows%}
-    <ul class="list-group">
-    {% for show in shows %}
-        <li class="list-group-item" >
-            {% include 'Website_app/show_list_formating.html' with show=show %}
-        </li>
-    {% endfor %}
-    </ul>
-    {% else %}
-    <p>There are no shows registered.</p>
-    {% endif %}
-
-</ul>
 
 {% endblock %}
 

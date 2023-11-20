@@ -655,3 +655,33 @@ Remember if you need to add relations be sure to add the id here aswell.
 
 
 
+
+# In page form
+Here I have a select form that is named `Show_types`
+This is in the main html page.
+```
+<form method="GET" style="padding: 10px;">
+<select class="form-select form-select-sm w-25" name = "Show_types">
+    <option value = "All Shows">All Shows</option>
+    <option value = "Unfinished">Unfinished</option>
+    <option value = "Finished">Finished</option>
+</select>
+<input type="submit" value="Search">
+</form>
+```
+Then in the views.py I have a seatch function for what do for each selection
+
+```
+shows = None
+    if request.GET.get("Show_types"):
+        results = request.GET.get("Show_types")
+        shows = Show.objects.all()
+        print(results)
+        if results == "Unfinished":
+            shows = shows.filter(finished = False)
+        elif results == "Finished":
+            shows = shows.filter(finished = True)
+```
+
+
+

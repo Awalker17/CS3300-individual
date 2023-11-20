@@ -10,15 +10,7 @@ def index(request):
     #Testing.
     #print("TESTING: All students with shows: ", Student.objects.select_related('show'))
 
-    shows = None
-    if request.GET.get("Show_types"):
-        results = request.GET.get("Show_types")
-        shows = Show.objects.all()
-        print(results)
-        if results == "Unfinished":
-            shows = shows.filter(finished = False)
-        elif results == "Finished":
-            shows = shows.filter(finished = True)
+    
 
     return render( request, 'Website_app/index.html', {'shows':shows})
 
@@ -87,3 +79,18 @@ def deleteShow(request, show_id):
 
     context = {"show": show}
     return render(request, 'Website_app/show_delete.html',context )
+
+def UserDetailView(request, user_id):
+
+    shows = None
+    shows = Show.objects.all().filter(user = user_id)
+    if request.GET.get("Show_types"):
+        results = request.GET.get("Show_types")
+        print(results)
+        if results == "Unfinished":
+            shows = shows.filter(finished = False)
+        elif results == "Finished":
+            shows = shows.filter(finished = True)
+
+    user = User.objects.get(id = user_id)
+    return render( request, 'Website_app/user_detail.html', {'user': user, 'shows':shows})
