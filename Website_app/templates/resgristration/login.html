@@ -3,12 +3,12 @@
 {% block content%}
 
 
-<form method = 'POST'>
+<form method = 'post'>
     {% csrf_token %}
     {{form|crispy}}
-</form>
+
 <p>Don't have an accont? Create one <a href="/sign-up">Here</a>!</p>
 <button type="submit" class="btn btn-primary">Login</button>
-
+</form>
 
 {% endblock %}

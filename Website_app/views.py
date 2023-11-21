@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
+
 from .models import *
 from .forms import *
 
@@ -121,8 +124,17 @@ def deleteUser(request, user_id):
     return render(request, 'Website_app/user_delete.html',context )
 
 def sign_up(request):
+    print("hello from signup")
     if request.method == "POST":
+        print("hello form post")
         form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            print(user.id)
+            return redirect('user_detail', user.id)
+
     else:
+        print("hello form else")
         form = RegisterForm()
     return render(request, 'registration/sign-up.html', {"form": form})

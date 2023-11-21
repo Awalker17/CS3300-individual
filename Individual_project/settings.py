@@ -53,6 +53,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 AUTHENTICATION_BACKENDS = [
 'django.contrib.auth.backends.ModelBackend',
 ]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000/sign-up', 'http://localhost:8000/login']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
