@@ -140,17 +140,3 @@ def sign_up(request):
         form = RegisterForm()
     return render(request, 'registration\sign-up.html', {"form": form})
 
-from django.contrib.auth.decorators import user_passes_test
-@user_passes_test(lambda u: not u.is_authenticated())
-def login(request):
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            print(user.id)
-            return redirect('user_detail', user.id)
-
-    else:
-        form = RegisterForm()
-    return render(request, 'registration\sign-up.html', {"form": form})

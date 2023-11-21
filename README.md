@@ -12,6 +12,9 @@
 * [How to create a model update page](#update-modelshow-page)
 * [How to create a model delete page](#delete-modelshow-page)
 * [Bootstrap](/Bootstrap.md)
+* [How to make the dropdown menu on details page](#in-page-form)
+    * [Here for views.py changes (see UserDetailView function)](#viewspy)
+* [Users](#making-users)
 
 # Setting up the envirnonment
 
@@ -669,7 +672,7 @@ This is in the main html page.
 <input type="submit" value="Search">
 </form>
 ```
-Then in the views.py I have a seatch function for what do for each selection
+Then in the views.py I have a search function for what do for each selection
 
 ```
 shows = None
@@ -682,6 +685,250 @@ shows = None
         elif results == "Finished":
             shows = shows.filter(finished = True)
 ```
+# Making Users 
+
+[Video Guide- Django Authentication & User Management - Full Tutorial](https://www.youtube.com/watch?v=WuyKxdLcw3w)
+^ this video is an excelent visual guide for how to makeing users and their permissions
+
+Things to install inside your virtual environment
+```
+python -m pip install crispy-bootstrap5
+python -m pip install django-crispy-forms
+```
+For assistance in crispy bootstrap5 go [here](https://pypi.org/project/crispy-bootstrap5/)
+
+For assistance in crispy forms go [here](https://django-crispy-forms.readthedocs.io/en/latest/install.html)
+
+in your setting.py add:
+```
+INSTALLED_APPS = (
+    ...
+    "crispy_forms",
+    "crispy_bootstrap5",
+    ...
+)
+```
+And you may need to add:
+
+```
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+```
+
+While your in setting.py there are a few the video did not cover that I had issues in.
+
+where I could not move from the login or sign-up page to another. Consider including the fallowing line.
+```
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000/sign-up', 'http://localhost:8000/login']
+```
+
+## detail and list veiws
+In the views.py page, forms.py page, models.py page and the urls.py page you aka anywhere you use User include
+```
+from django.contrib.auth.models import User
+```
+The list views was not particularly unique and didn't have any issues.
+```
+class UserListView(generic.ListView):
+    model = User
+```
+However the standard detail veiw was causing issues because I wanted to include a form.
+```
+def UserDetailView(request, user_id):
+
+    shows = None
+    shows = Show.objects.all().filter(user = user_id)
+    if request.GET.get("Show_types"):
+        results = request.GET.get("Show_types")
+        print(results)
+        if results == "Unfinished":
+            shows = shows.filter(finished = False)
+        elif results == "Finished":
+            shows = shows.filter(finished = True)
+
+    user = User.objects.get(id = user_id)
+    return render( request, 'Website_app/user_detail.html', {'otheruser': user, 'shows':shows})
+
+```
+
+Notice I rename the context from just user to `otheruser` This was to fix an issue with the logged in user and the user for the current page were conflicting. 
+
+For the fallowing sections remeber to change all show urls and functions and classes to reflect the fact that shows now rely on users.
+
+## urls.py User paths
+
+The main paths I wrote were
+
+```
+path('user/<int:user_id>', views.UserDetailView, name = 'user_detail'),
+
+path('user/<int:user_id>/create_show', views.createShow, name='create_show'),
+
+path('user', views.UserListView.as_view(), name = 'user-list'),
+
+path('user/create_user', views.createUser, name='create_user'),
+
+path('user/<int:user_id>/delete_user', views.deleteUser, name='delete_user'),
+```
+
+## models.py
+Be sure to include 
+```
+from django.contrib.auth.models import User
+```
+and add the user feild to the show model.
+
+```
+user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+```
+
+The forien key here will be used to identfy who wrote what shows.
+
+## forms.py
+Be sure to include
+```
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+```
+
+the create_user form uses the UserCreationForm a pre setup type of form to use.
+```
+class RegisterForm(UserCreationForm):
+   email = forms.EmailField(required = True)
+   class Meta:
+      model = User
+      fields =["username", "email", "password1", "password2"]
+```
+
+## views.py
+
+3 views writen to support user creation and deletion
+
+```
+class UserListView(generic.ListView):
+    model = User
+
+def createUser(request):
+    form = UserForm()
+    
+    if request.method == 'POST':
+        # Create a new dictionary with form data and user_id
+        user_data = request.POST.copy()
+        
+        form = UserForm(user_data)
+        if form.is_valid():
+            # Save the form without committing to the database
+            user = form.save(commit=False)
+            
+            user.save()
+
+            # Redirect back to the user detail page
+            return redirect('user-list')
+
+    context = {'form':form}
+    return render(request, 'Website_app/user_form.html', context)
+
+def deleteUser(request, user_id):
+    user= User.objects.get(id = user_id)
+
+    if request.method == "POST":
+        user.delete()
+        messages.success(request, "The user has been deleted.")
+        
+        return redirect('user-list')
+
+    context = {"user": user}
+    return render(request, 'Website_app/user_delete.html',context )
+
+def sign_up(request):
+    print("hello from signup")
+    if request.method == "POST":
+        print("hello form post")
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            print(user.id)
+            return redirect('user_detail', user.id)
+
+    else:
+        print("hello form else")
+        form = RegisterForm()
+    return render(request, 'registration\sign-up.html', {"form": form})
+```
+
+The create show function must be updated to:
+```
+def createShow(request, user_id):
+    form = ShowForm()
+    
+    if request.method == 'POST':
+        # Create a new dictionary with form data and show_id
+        show_data = request.POST.copy()
+        
+        form = ShowForm(show_data)
+        if form.is_valid():
+            # Save the form without committing to the database
+            show = form.save(commit=False)
+            show.user = User.objects.get(id = user_id)
+
+            show.save()
+
+            # Redirect back to the show detail page
+            return redirect('user_detail', user_id)
+
+    context = {'form':form}
+    return render(request, 'Website_app\show_form.html', context)
+```
+I had some major issues when making these changes: flushing the database fixed it.
+## HTML pages
+
+Inside of the templates folder include:
+`registration` and `auth`
+After encountering an error Django was looking for user_list.html in a folder called `auth`, after creating the folder simply move user_list.html into that folder.
+>[!NOTE!]
+>This may not be nesassary for you.
+
+Inside of `registration` make two html files: `login.html` and `sign-up.html` 
+These contain very simular code.
 
 
+Sign-up
+```
+{% extends 'Website_app/base_template.html' %}
+{%load crispy_forms_tags%}
+{% block content%}
 
+
+<form method = 'post'>
+    {% csrf_token %}
+    {{form|crispy}}
+
+<p>Have an accont? Sign in <a href="/login">Here</a>!</p>
+<button type="submit" class="btn btn-primary">Login</button>
+</form>
+
+{% endblock %}
+```
+Login
+```
+{% extends 'Website_app/base_template.html' %}
+{%load crispy_forms_tags%}
+{% block content%}
+
+
+<form method = 'post'>
+    {% csrf_token %}
+    {{form|crispy}}
+
+<p>Don't have an accont? Create one <a href="/sign-up">Here</a>!</p>
+<button type="submit" class="btn btn-primary">Login</button>
+</form>
+
+{% endblock %}
+```
+`{{form|crispy}}` is a bootstrap form for your use.
+
+# User permisions and control
