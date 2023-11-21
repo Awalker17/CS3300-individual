@@ -1,0 +1,14 @@
+{% extends 'Website_app/base_template.html' %}
+{%load crispy_forms_tags%}
+{% block content%}
+
+
+<form method = 'POST'>
+    {% csrf_token %}
+    {{form|crispy}}
+</form>
+<p>Don't have an accont? Create one <a href="/sign-up">Here</a>!</p>
+<button type="submit" class="btn btn-primary">Login</button>
+
+
+{% endblock %}

@@ -119,3 +119,10 @@ def deleteUser(request, user_id):
 
     context = {"user": user}
     return render(request, 'Website_app/user_delete.html',context )
+
+def sign_up(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/sign-up.html', {"form": form})

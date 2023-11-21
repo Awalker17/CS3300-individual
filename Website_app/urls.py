@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 urlpatterns = [
 #path function defines a url pattern
@@ -17,4 +17,7 @@ path('user/<int:user_id>', views.UserDetailView, name = 'user_detail'),
 path('user', views.UserListView.as_view(), name = 'user-list'),
 path('user/create_user', views.createUser, name='create_user'),
 path('user/<int:user_id>/delete_user', views.deleteUser, name='delete_user'),
+
+path('', include('django.contrib.auth.urls')),
+path('sign-up', views.sign_up, name="sign-up"),
 ]
