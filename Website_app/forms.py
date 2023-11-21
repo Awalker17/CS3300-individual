@@ -7,12 +7,7 @@ from django.contrib.auth.models import User
 class ShowForm(ModelForm):
    class Meta:
       model = Show
-      fields ='__all__'
-
-class UserForm(ModelForm):
-   class Meta:
-      model = User
-      fields ='__all__'
+      fields =["title", "finished", "season", "episode", "language", "streaming", "description", "synopis"]
       
 class RegisterForm(UserCreationForm):
    email = forms.EmailField(required = True)

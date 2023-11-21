@@ -19,7 +19,7 @@ class ShowDetailView(generic.DetailView):
 class ShowListView(generic.ListView):
     model = Show
 
-def createShow(request):
+def createShow(request, user_id):
     form = ShowForm()
     
     if request.method == 'POST':
@@ -30,11 +30,12 @@ def createShow(request):
         if form.is_valid():
             # Save the form without committing to the database
             show = form.save(commit=False)
-            
+            show.user = User.objects.get(id = user_id)
+
             show.save()
 
             # Redirect back to the show detail page
-            return redirect('show-list')
+            return redirect('user_detail', user_id)
 
     context = {'form':form}
     return render(request, 'Website_app\show_form.html', context)
@@ -137,4 +138,4 @@ def sign_up(request):
     else:
         print("hello form else")
         form = RegisterForm()
-    return render(request, 'registration/sign-up.html', {"form": form})
+    return render(request, 'resgristration\sign-up.html', {"form": form})
