@@ -87,7 +87,7 @@ def UserDetailView(request, user_id):
             shows = shows.filter(finished = True)
 
     user = User.objects.get(id = user_id)
-    return render( request, 'Website_app/user_detail.html', {'user': user, 'shows':shows})
+    return render( request, 'Website_app/user_detail.html', {'otheruser': user, 'shows':shows})
 
 class UserListView(generic.ListView):
     model = User
@@ -138,4 +138,19 @@ def sign_up(request):
     else:
         print("hello form else")
         form = RegisterForm()
-    return render(request, 'resgristration\sign-up.html', {"form": form})
+    return render(request, 'registration\sign-up.html', {"form": form})
+
+from django.contrib.auth.decorators import user_passes_test
+@user_passes_test(lambda u: not u.is_authenticated())
+def login(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            print(user.id)
+            return redirect('user_detail', user.id)
+
+    else:
+        form = RegisterForm()
+    return render(request, 'registration\sign-up.html', {"form": form})

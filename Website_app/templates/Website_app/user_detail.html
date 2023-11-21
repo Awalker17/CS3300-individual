@@ -3,9 +3,9 @@
 
 {% block content %}
 
-<p class="h1">{{user}}</p>
+<p class="h1">{{otheruser}}</p>
 
-<p class="h2">My Shows <a class="btn btn-primary float-end" role="button" href = "{% url 'create_show' user.id %}">New</a></p>
+<p class="h2">My Shows <a class="btn btn-primary float-end" role="button" href = "{% url 'create_show' otheruser.id %}">New</a></p>
 
 
 <form method="GET" style="padding: 10px;">

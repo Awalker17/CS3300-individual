@@ -20,4 +20,5 @@ path('user/<int:user_id>/delete_user', views.deleteUser, name='delete_user'),
 
 path('', include('django.contrib.auth.urls')),
 path('sign-up', views.sign_up, name="sign-up"),
+path('login', views.login, name="login"),
 ]
