@@ -4,8 +4,12 @@
 {% block content %}
 
 <p class="h1">{{otheruser}}</p>
-
-<p class="h2">My Shows <a class="btn btn-primary float-end" role="button" href = "{% url 'create_show' otheruser.id %}">New</a></p>
+{% if user.username == otheruser.username%}
+<p class="h2">My Shows <a class="btn btn-primary float-end" role="button" href = "{% url 'create_show' otheruser.id %}">Add Show</a>
+<a class="btn btn-danger float-end mx-2" role="button" href = "{% url 'delete_user' otheruser.id %}">Delete Account</a></p>
+{% else %}
+<p class="h2">My Shows</p>
+{% endif %}
 
 
 <form method="GET" style="padding: 10px;">

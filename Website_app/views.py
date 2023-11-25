@@ -3,7 +3,8 @@ from django.views import generic
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
 
 from .models import *
 from .forms import *
@@ -19,6 +20,7 @@ class ShowDetailView(generic.DetailView):
 class ShowListView(generic.ListView):
     model = Show
 
+@login_required(login_url="/login/")
 def createShow(request, user_id):
     form = ShowForm()
     
@@ -40,6 +42,7 @@ def createShow(request, user_id):
     context = {'form':form}
     return render(request, 'Website_app\show_form.html', context)
 
+@login_required(login_url="/login/")
 def updateShow(request, show_id):
     show = Show.objects.get(id = show_id)
     form = ShowForm(instance=show)
@@ -62,6 +65,7 @@ def updateShow(request, show_id):
     context = {'form': form}
     return render(request, 'Website_app/Show_form.html',context )
 
+@login_required(login_url="/login/")
 def deleteShow(request, show_id):
     show = Show.objects.get(id = show_id)
 
@@ -92,18 +96,20 @@ def UserDetailView(request, user_id):
 class UserListView(generic.ListView):
     model = User
 
+
 def createUser(request):
     form = UserForm()
     
     if request.method == 'POST':
         # Create a new dictionary with form data and user_id
         user_data = request.POST.copy()
-        
+        group = Group.objects.get(name="Default")
+        print("Group:", group)
         form = UserForm(user_data)
         if form.is_valid():
             # Save the form without committing to the database
             user = form.save(commit=False)
-            
+            user.groups.add(group)
             user.save()
 
             # Redirect back to the user detail page
@@ -112,6 +118,7 @@ def createUser(request):
     context = {'form':form}
     return render(request, 'Website_app/user_form.html', context)
 
+@login_required(login_url="/login/")
 def deleteUser(request, user_id):
     user= User.objects.get(id = user_id)
 
@@ -125,18 +132,18 @@ def deleteUser(request, user_id):
     return render(request, 'Website_app/user_delete.html',context )
 
 def sign_up(request):
-    print("hello from signup")
     if request.method == "POST":
-        print("hello form post")
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            group = Group.objects.get(name="Default")
+            user.groups.add(group)
             login(request, user)
             print(user.id)
             return redirect('user_detail', user.id)
 
     else:
-        print("hello form else")
+
         form = RegisterForm()
     return render(request, 'registration\sign-up.html', {"form": form})
 
