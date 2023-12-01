@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
+
 from .models import *
 from .forms import *
 
@@ -9,32 +13,15 @@ from .forms import *
 def index(request):
     #Testing.
     #print("TESTING: All students with shows: ", Student.objects.select_related('show'))
-
-    shows = None
-    if request.GET.get("Show_types"):
-        results = request.GET.get("Show_types")
-        shows = Show.objects.all()
-        print(results)
-        if results == "Unfinished":
-            shows = shows.filter(finished = False)
-        elif results == "Finished":
-            shows = shows.filter(finished = True)
-
-    return render( request, 'Website_app/index.html', {'shows':shows})
-
-def unfinishedShowList(request):
-    #Testing.
-    #print("TESTING: All students with shows: ", Student.objects.select_related('show'))
-    unfinished_shows = Show.objects.all().filter(finished = False)
-    print("show query set", unfinished_shows)
-    return render( request, 'Website_app/show_list_unfinished.html', {'unfinished_shows':unfinished_shows})
+    return render( request, 'Website_app/index.html')
 
 class ShowDetailView(generic.DetailView):
     model = Show
 class ShowListView(generic.ListView):
     model = Show
 
-def createShow(request):
+@login_required(login_url="/login/")
+def createShow(request, user_id):
     form = ShowForm()
     
     if request.method == 'POST':
@@ -45,15 +32,17 @@ def createShow(request):
         if form.is_valid():
             # Save the form without committing to the database
             show = form.save(commit=False)
-            
+            show.user = User.objects.get(id = user_id)
+
             show.save()
 
             # Redirect back to the show detail page
-            return redirect('show-list')
+            return redirect('user_detail', user_id)
 
     context = {'form':form}
     return render(request, 'Website_app\show_form.html', context)
 
+@login_required(login_url="/login/")
 def updateShow(request, show_id):
     show = Show.objects.get(id = show_id)
     form = ShowForm(instance=show)
@@ -76,6 +65,7 @@ def updateShow(request, show_id):
     context = {'form': form}
     return render(request, 'Website_app/Show_form.html',context )
 
+@login_required(login_url="/login/")
 def deleteShow(request, show_id):
     show = Show.objects.get(id = show_id)
 
@@ -87,3 +77,73 @@ def deleteShow(request, show_id):
 
     context = {"show": show}
     return render(request, 'Website_app/show_delete.html',context )
+ 
+def UserDetailView(request, user_id):
+
+    shows = None
+    shows = Show.objects.all().filter(user = user_id)
+    if request.GET.get("Show_types"):
+        results = request.GET.get("Show_types")
+        print(results)
+        if results == "Unfinished":
+            shows = shows.filter(finished = False)
+        elif results == "Finished":
+            shows = shows.filter(finished = True)
+
+    user = User.objects.get(id = user_id)
+    return render( request, 'Website_app/user_detail.html', {'otheruser': user, 'shows':shows})
+
+class UserListView(generic.ListView):
+    model = User
+
+
+def createUser(request):
+    form = UserForm()
+    
+    if request.method == 'POST':
+        # Create a new dictionary with form data and user_id
+        user_data = request.POST.copy()
+        group = Group.objects.get(name="Default")
+        print("Group:", group)
+        form = UserForm(user_data)
+        if form.is_valid():
+            # Save the form without committing to the database
+            user = form.save(commit=False)
+            user.groups.add(group)
+            user.save()
+
+            # Redirect back to the user detail page
+            return redirect('user-list')
+
+    context = {'form':form}
+    return render(request, 'Website_app/user_form.html', context)
+
+@login_required(login_url="/login/")
+def deleteUser(request, user_id):
+    user= User.objects.get(id = user_id)
+
+    if request.method == "POST":
+        user.delete()
+        messages.success(request, "The user has been deleted.")
+        
+        return redirect('user-list')
+
+    context = {"user": user}
+    return render(request, 'Website_app/user_delete.html',context )
+
+def sign_up(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            group = Group.objects.get(name="Default")
+            user.groups.add(group)
+            login(request, user)
+            print(user.id)
+            return redirect('user_detail', user.id)
+
+    else:
+
+        form = RegisterForm()
+    return render(request, 'registration\sign-up.html', {"form": form})
+

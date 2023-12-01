@@ -1,0 +1,43 @@
+{% extends 'Website_app/base_template.html' %}
+
+
+{% block content %}
+
+<p class="h1">{{otheruser}}</p>
+{% if user.username == otheruser.username%}
+<p class="h2">My Shows <a class="btn btn-primary float-end" role="button" href = "{% url 'create_show' otheruser.id %}">Add Show</a>
+<a class="btn btn-danger float-end mx-2" role="button" href = "{% url 'delete_user' otheruser.id %}">Delete Account</a></p>
+{% else %}
+<p class="h2">My Shows</p>
+{% endif %}
+
+
+<form method="GET" style="padding: 10px;">
+<select class="form-select form-select-sm w-25" name = "Show_types">
+    <option value = "All Shows">All Shows</option>
+    <option value = "Unfinished">Unfinished</option>
+    <option value = "Finished">Finished</option>
+</select>
+<input type="submit" value="Search">
+</form>
+{% if shows %}    
+    <ul class="list-group">
+    
+        {% if shows%}
+        <ul class="list-group">
+        {% for show in shows %}
+            <li class="list-group-item" >
+                {% include 'Website_app/show_list_formating.html' with show=show %}
+            </li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <p>There are no shows registered.</p>
+        {% endif %}
+    
+    </ul>
+{% else %}
+<p>There are no shows</p>
+{% endif%}
+
+{% endblock %}

@@ -33,8 +33,10 @@
     </div>
 </div>
 <div class="my-2 float-end">
+{% if user == show.user%}
 <a href = "{% url 'update_show' show.id %}" class="btn btn-primary">Update</a>
 <a class="btn btn-danger" role="button" href = "{% url 'delete_show' show.id %}">Delete</a>
+{% endif%}
 </div>
 </div>
 
